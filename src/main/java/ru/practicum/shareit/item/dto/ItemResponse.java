@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,10 +6,10 @@ import lombok.NoArgsConstructor;
 import org.apache.catalina.connector.Request;
 import ru.practicum.shareit.user.User;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class Item {
+public class ItemResponse {
     private Long id;
     private String name;
     private String description;
