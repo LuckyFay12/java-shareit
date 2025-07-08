@@ -7,8 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.apache.catalina.connector.Request;
-import ru.practicum.shareit.user.User;
 
 @Getter
 @ToString
@@ -23,6 +21,4 @@ public class ItemCreateRequest {
     private String description;
     @NotNull
     private Boolean available;
-    private User owner;
-    private Request request;
 }
