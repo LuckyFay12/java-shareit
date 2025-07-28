@@ -20,6 +20,7 @@ public abstract class ItemMapper {
     protected CommentMapper commentMapper;
 
     @Mapping(target = "owner.id", source = "userId")
+    @Mapping(target = "itemRequest", ignore = true)
     public abstract Item toItem(ItemCreateRequest request, Long userId);
 
     @Mapping(target = "id", ignore = true)
@@ -30,6 +31,8 @@ public abstract class ItemMapper {
     @Mapping(target = "ownerName", source = "owner.name")
     @Mapping(target = "requestId", source = "itemRequest.id")
     @Mapping(target = "comments", ignore = true)
+    @Mapping(target = "lastBooking", ignore = true)
+    @Mapping(target = "nextBooking", ignore = true)
     public abstract ItemResponse toItemResponse(Item item);
 
     @AfterMapping
