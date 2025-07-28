@@ -1,14 +1,12 @@
 package ru.practicum.shareit.item.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.apache.catalina.connector.Request;
+import lombok.*;
+import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 @Getter
+@Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,5 +16,5 @@ public class ItemUpdateRequest {
     private String description;
     private Boolean available;
     private User owner;
-    private Request request;
+    private ItemRequest itemRequest;
 }

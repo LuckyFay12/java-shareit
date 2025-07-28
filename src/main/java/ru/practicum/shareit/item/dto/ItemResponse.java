@@ -3,8 +3,9 @@ package ru.practicum.shareit.item.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.catalina.connector.Request;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.booking.dto.BookingShortInfoDto;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -14,6 +15,9 @@ public class ItemResponse {
     private String name;
     private String description;
     private Boolean available;
-    private User owner;
-    private Request request;
+    private String ownerName;
+    private Long requestId;
+    private List<CommentResponse> comments;
+    private BookingShortInfoDto lastBooking;
+    private BookingShortInfoDto nextBooking;
 }

@@ -7,7 +7,6 @@ import ru.practicum.shareit.exception.AlreadyExistsException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,36 +19,44 @@ public class UserServiceImpl implements UserService {
     @Override
     public User create(User user) {
         validateEmailExists(user.getEmail());
-        return userRepository.create(user);
+        return userRepository.save(user);
     }
 
     @Override
     public User update(Long userId, User user) {
         validateEmailExists(user.getEmail());
-        return userRepository.update(userId, user);
+        User updatedUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с id " + userId + " не найден"));
+        if (user.getName() != null) {
+            updatedUser.setName(user.getName());
+        }
+        if (user.getEmail() != null) {
+            updatedUser.setEmail(user.getEmail());
+        }
+        return userRepository.save(updatedUser);
     }
 
     @Override
     public void delete(Long userId) {
-        userRepository.delete(userId);
+        if(!userRepository.existsById(userId)) {
+            throw new UserNotFoundException("Пользователь с id " + userId + " не найден");
+        }
+        userRepository.deleteById(userId);
     }
 
     @Override
-    public User getById(long id) {
-        User user = userRepository.getById(id);
-        if (Objects.isNull(user)) {
-            throw new UserNotFoundException("Пользователь с id " + id + " не найден");
-        }
-        return user;
+    public User getById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с id " + id + " не найден"));
     }
 
     @Override
     public List<User> getAll() {
-        return userRepository.getAll();
+        return userRepository.findAll();
     }
 
     private void validateEmailExists(String email) {
-        List<String> emails = userRepository.getAll().stream()
+        List<String> emails = userRepository.findAll().stream()
                 .map(User::getEmail)
                 .collect(Collectors.toList());
         if (emails.contains(email)) {
