@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.nio.file.AccessDeniedException;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -34,12 +35,32 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
+    @ExceptionHandler(BookingNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleBookingNotFound(BookingNotFoundException e) {
+        log.debug("Бронь не найдена: {}", e.getMessage(), e);
+        return ApiError.builder()
+                .errorCode(HttpStatus.NOT_FOUND.value())
+                .description(e.getMessage())
+                .build();
+    }
+
     @ExceptionHandler(AlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleAlreadyExists(AlreadyExistsException e) {
         log.debug("Уже существует: {}", e.getMessage(), e);
         return ApiError.builder()
                 .errorCode(HttpStatus.CONFLICT.value())
+                .description(e.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiError handleAccessDenied(AccessDeniedException e) {
+        log.debug("У пользователя нет прав для этого действия: {}", e.getMessage(), e);
+        return ApiError.builder()
+                .errorCode(HttpStatus.FORBIDDEN.value())
                 .description(e.getMessage())
                 .build();
     }
