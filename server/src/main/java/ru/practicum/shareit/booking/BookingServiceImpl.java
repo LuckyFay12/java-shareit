@@ -42,7 +42,6 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.save(booking);
     }
 
-
     @Override
     public Booking approve(Long bookingId, Long userId, boolean approved) {
         Booking booking = bookingRepository.findById(bookingId)
