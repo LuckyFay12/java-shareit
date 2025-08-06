@@ -41,10 +41,10 @@ public class BookingTest {
                 .build();
 
         Booking booking2 = Booking.builder()
-                .id(1L) // тот же ID
-                .start(LocalDateTime.now().plusHours(1)) // другое время
-                .end(LocalDateTime.now().plusDays(2)) // другое время
-                .status(Status.APPROVED) // другой статус
+                .id(1L)
+                .start(LocalDateTime.now().plusHours(1))
+                .end(LocalDateTime.now().plusDays(2))
+                .status(Status.APPROVED)
                 .build();
 
         assertEquals(booking1, booking2);

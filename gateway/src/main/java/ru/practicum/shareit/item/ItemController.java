@@ -1,16 +1,20 @@
 package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentCreateRequest;
 import ru.practicum.shareit.item.dto.ItemCreateRequest;
 import ru.practicum.shareit.item.dto.ItemUpdateRequest;
+
+import java.util.Collections;
 
 @Controller
 @RequestMapping("/items")
@@ -22,45 +26,50 @@ public class ItemController {
     private final ItemClient itemClient;
 
     @PostMapping
-    public ResponseEntity<Object> create(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                         @Valid @RequestBody ItemCreateRequest request) {
-        log.info("Получен HTTP-запрос на добавление вещи: {}", request);
-        return itemClient.create(userId, request);
+    public ResponseEntity<Object> createItem(@RequestHeader("X-Sharer-User-Id") @Positive Long userId,
+                                             @Valid @RequestBody ItemCreateRequest itemDto) {
+        log.info("Creating item {}, userId={}", itemDto, userId);
+        return itemClient.createItem(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    public ResponseEntity<Object> update(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                         @Min(1L) @PathVariable Long itemId,
-                                         @Valid @RequestBody ItemUpdateRequest request) {
-        log.info("Получен HTTP-запрос на обновление вещи с id {}", itemId);
-        return itemClient.update(itemId, userId, request);
+    public ResponseEntity<Object> updateItem(@RequestHeader("X-Sharer-User-Id") @Positive Long userId,
+                                             @PathVariable @Positive Long itemId,
+                                             @RequestBody ItemUpdateRequest itemDto) {
+        log.info("Updating item {}, itemId={}, userId={}", itemDto, itemId, userId);
+        return itemClient.updateItem(userId, itemId, itemDto);
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<Object> get(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                      @Min(1L) @PathVariable Long itemId) {
-        log.info("Получен HTTP-запрос на получение вещи с id {}", itemId);
-        return itemClient.getById(userId, itemId);
+    public ResponseEntity<Object> getItemById(@RequestHeader("X-Sharer-User-Id") @Positive Long userId,
+                                              @PathVariable @Positive Long itemId) {
+        log.info("Get item itemId={}, userId={}", itemId, userId);
+        return itemClient.getItemById(userId, itemId);
     }
 
     @GetMapping
-    public ResponseEntity<Object> getUserItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        log.info("Получен HTTP-запрос на получение всех вещей пользователя id {}", userId);
-        return itemClient.getUserItems(userId);
+    public ResponseEntity<Object> getItemsByUserId(@RequestHeader("X-Sharer-User-Id") @Positive Long userId) {
+        log.info("Get items by userId={}", userId);
+        return itemClient.getItemsByUserId(userId);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> search(@RequestParam("text") String text) {
-        log.info("Получен HTTP-запрос на поиск вещи по тексту {}", text);
-        return itemClient.search(text);
+    public ResponseEntity<Object> searchItems(@RequestParam @NotNull String text) {
+        log.info("Search items with text={}", text);
+
+        if (!StringUtils.hasText(text)) {
+            log.info("Search text is blank or null, returning empty list");
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        return itemClient.searchItems(text);
     }
 
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> addComment(@Min(1) @PathVariable Long itemId,
-                                             @RequestHeader("X-Sharer-User-Id") Long userId,
-                                             @Valid @RequestBody CommentCreateRequest request) {
-        log.info("Получен HTTP-запрос на добавление комментария к вещи c id {}", itemId);
-        return itemClient.createComment(userId, itemId, request);
+    public ResponseEntity<Object> addComment(@RequestHeader("X-Sharer-User-Id") @Positive Long userId,
+                                             @PathVariable @Positive Long itemId,
+                                             @RequestBody @Valid CommentCreateRequest commentRequestDto) {
+        log.info("Add comment {}, itemId={}, userId={}", commentRequestDto, itemId, userId);
+        return itemClient.addComment(userId, itemId, commentRequestDto);
     }
 }
-

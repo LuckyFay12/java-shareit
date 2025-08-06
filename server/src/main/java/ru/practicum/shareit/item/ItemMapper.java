@@ -1,20 +1,25 @@
 package ru.practicum.shareit.item;
 
-import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import ru.practicum.shareit.item.dto.CommentResponse;
 import ru.practicum.shareit.item.dto.ItemCreateRequest;
 import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.dto.ItemUpdateRequest;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserMapper;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Mapper(componentModel = "spring", uses = {UserMapper.class, CommentMapper.class})
 public abstract class ItemMapper {
 
     @Autowired
+    @Lazy
     protected CommentRepository commentRepository;
     @Autowired
     protected CommentMapper commentMapper;
@@ -31,14 +36,16 @@ public abstract class ItemMapper {
 
     @Mapping(target = "ownerName", source = "owner.name")
     @Mapping(target = "requestId", source = "itemRequest.id")
-    @Mapping(target = "comments", ignore = true)
+    @Mapping(target = "comments", expression = "java(loadComments(item))")
     @Mapping(target = "lastBooking", ignore = true)
     @Mapping(target = "nextBooking", ignore = true)
     public abstract ItemResponse toItemResponse(Item item);
 
-    @AfterMapping
-    protected void fillComments(Item item, @MappingTarget ItemResponse itemResponse) {
-        itemResponse.setComments(commentMapper.toCommentResponseList(commentRepository.findAllByItem(item)));
+    protected List<CommentResponse> loadComments(Item item) {
+        if (item.getId() == null) return Collections.emptyList();
+        return commentRepository.findAllByItem(item).stream()
+                .map(commentMapper::toCommentResponse)
+                .collect(Collectors.toList());
     }
 }
 

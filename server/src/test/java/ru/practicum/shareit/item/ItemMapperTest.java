@@ -5,17 +5,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.item.dto.CommentResponse;
 import ru.practicum.shareit.item.dto.ItemCreateRequest;
 import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.dto.ItemUpdateRequest;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ItemMapperTest {
@@ -104,5 +110,31 @@ class ItemMapperTest {
     void toItemResponse_WithNullItem_ShouldReturnNull() {
         assertNull(itemMapper.toItemResponse(null));
     }
+
+    @Test
+    void loadComments_whenCommentsExist_shouldReturnMappedComments() {
+        Item item = new Item();
+        item.setId(1L);
+
+        Comment comment = new Comment();
+        comment.setId(1L);
+
+        CommentResponse response = new CommentResponse();
+        response.setId(1L);
+
+        when(commentRepository.findAllByItem(item))
+                .thenReturn(List.of(comment));
+        when(commentMapper.toCommentResponse(comment))
+                .thenReturn(response);
+
+        List<CommentResponse> result = itemMapper.loadComments(item);
+
+        assertEquals(1, result.size());
+        assertEquals(1L, result.get(0).getId());
+
+        verify(commentRepository).findAllByItem(item);
+        verify(commentMapper).toCommentResponse(comment);
+    }
 }
+
 
