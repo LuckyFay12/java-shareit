@@ -16,23 +16,23 @@ class UserCreateRequestTest {
 
     @Test
     void allArgsConstructor_ShouldSetAllFields() {
-        UserCreateRequest request = new UserCreateRequest(1L, "John Doe", "john@example.com");
+        UserCreateRequest request = new UserCreateRequest(1L, "Ann", "ann@example.com");
 
         assertEquals(1L, request.getId());
-        assertEquals("John Doe", request.getName());
-        assertEquals("john@example.com", request.getEmail());
+        assertEquals("Ann", request.getName());
+        assertEquals("ann@example.com", request.getEmail());
     }
 
     @Test
     void builder_ShouldCreateObjectWithSpecifiedValues() {
         UserCreateRequest request = UserCreateRequest.builder()
                 .id(2L)
-                .name("Alice Smith")
+                .name("Alice")
                 .email("alice@example.com")
                 .build();
 
         assertEquals(2L, request.getId());
-        assertEquals("Alice Smith", request.getName());
+        assertEquals("Alice", request.getName());
         assertEquals("alice@example.com", request.getEmail());
     }
 
@@ -41,12 +41,12 @@ class UserCreateRequestTest {
         UserCreateRequest request = new UserCreateRequest();
 
         request.setId(3L);
-        request.setName("Bob Johnson");
-        request.setEmail("bob@example.com");
+        request.setName("Ivan");
+        request.setEmail("ivan@example.com");
 
         assertEquals(3L, request.getId());
-        assertEquals("Bob Johnson", request.getName());
-        assertEquals("bob@example.com", request.getEmail());
+        assertEquals("Ivan", request.getName());
+        assertEquals("ivan@example.com", request.getEmail());
     }
 
     @Test

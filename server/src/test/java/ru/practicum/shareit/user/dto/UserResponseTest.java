@@ -12,21 +12,21 @@ class UserResponseTest {
     void builder_ShouldCreateObjectWithSpecifiedValues() {
         UserResponse response = UserResponse.builder()
                 .id(1L)
-                .name("John Doe")
-                .email("john@example.com")
+                .name("Ann")
+                .email("ann@example.com")
                 .build();
 
         assertEquals(1L, response.getId());
-        assertEquals("John Doe", response.getName());
-        assertEquals("john@example.com", response.getEmail());
+        assertEquals("Ann", response.getName());
+        assertEquals("ann@example.com", response.getEmail());
     }
 
     @Test
     void allArgsConstructor_ShouldSetAllFields() {
-        UserResponse response = new UserResponse(2L, "Alice Smith", "alice@example.com");
+        UserResponse response = new UserResponse(2L, "Alice", "alice@example.com");
 
         assertEquals(2L, response.getId());
-        assertEquals("Alice Smith", response.getName());
+        assertEquals("Alice", response.getName());
         assertEquals("alice@example.com", response.getEmail());
     }
 
@@ -34,12 +34,12 @@ class UserResponseTest {
     void dataAnnotation_ShouldProvideGettersAndSetters() {
         UserResponse response = new UserResponse();
         response.setId(3L);
-        response.setName("Bob Johnson");
-        response.setEmail("bob@example.com");
+        response.setName("Ivan");
+        response.setEmail("ivan@example.com");
 
         assertEquals(3L, response.getId());
-        assertEquals("Bob Johnson", response.getName());
-        assertEquals("bob@example.com", response.getEmail());
+        assertEquals("Ivan", response.getName());
+        assertEquals("ivan@example.com", response.getEmail());
     }
 
     @Test

@@ -42,7 +42,7 @@ public class ItemServiceImpl implements ItemService {
         if (item.getItemRequest() != null && item.getItemRequest().getId() != null) {
             Long requestId = item.getItemRequest().getId();
             ItemRequest request = itemRequestRepository.findById(requestId)
-                    .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest with ID " + requestId + " not found"));
+                    .orElseThrow(() -> new ItemRequestNotFoundException("Запрос с id " + requestId + " не найден"));
             item.setItemRequest(request);
         } else {
             item.setItemRequest(null);

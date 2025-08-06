@@ -99,5 +99,10 @@ class ItemMapperTest {
         assertNull(result.getLastBooking());
         assertNull(result.getNextBooking());
     }
+
+    @Test
+    void toItemResponse_WithNullItem_ShouldReturnNull() {
+        assertNull(itemMapper.toItemResponse(null));
+    }
 }
 

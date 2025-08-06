@@ -101,4 +101,16 @@ class CommentMapperTest {
     void toCommentResponseList_ShouldHandleNull() {
         assertNull(commentMapper.toCommentResponseList(null));
     }
+
+    @Test
+    void toComment_WithNullRequestFields_ShouldHandleNulls() {
+        CommentCreateRequest request = new CommentCreateRequest(); // null text
+
+        Comment comment = commentMapper.toComment(request, itemId, userId);
+
+        assertNotNull(comment);
+        assertNull(comment.getText());
+        assertEquals(itemId, comment.getItem().getId());
+        assertEquals(userId, comment.getAuthor().getId());
+    }
 }

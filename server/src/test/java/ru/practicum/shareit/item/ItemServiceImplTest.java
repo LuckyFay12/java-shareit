@@ -11,9 +11,13 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingShortInfoDto;
 import ru.practicum.shareit.exception.AccessDeniedException;
+import ru.practicum.shareit.exception.ItemNotFoundException;
+import ru.practicum.shareit.exception.ItemRequestNotFoundException;
 import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
@@ -42,11 +46,15 @@ public class ItemServiceImplTest {
     private BookingMapper bookingMapper;
     @Mock
     private ItemMapper itemMapper;
+    @Mock
+    private ItemRequestRepository itemRequestRepository;
     @InjectMocks
     private ItemServiceImpl itemService;
 
     private final Long userId = 1L;
     private final Long itemId = 1L;
+    private final Long requestId = 1L;
+
     private final User owner = User.builder().id(userId).name("Owner").email("owner@mail.ru").build();
     private final Item item = Item.builder()
             .id(itemId)
@@ -56,8 +64,10 @@ public class ItemServiceImplTest {
             .owner(owner)
             .build();
 
+    private final ItemRequest itemRequest = ItemRequest.builder().id(requestId).build();
+
     @Test
-    void create_ShouldCreateItem() {
+    void create_ShouldCreateItemWithoutRequest() {
         when(userService.getById(userId)).thenReturn(owner);
         when(itemRepository.save(any(Item.class))).thenReturn(item);
 
@@ -69,7 +79,31 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    void update_ShouldUpdateItem() {
+    void create_ShouldCreateItemWithRequest() {
+        item.setItemRequest(itemRequest);
+        when(userService.getById(userId)).thenReturn(owner);
+        when(itemRequestRepository.findById(requestId)).thenReturn(Optional.of(itemRequest));
+        when(itemRepository.save(any(Item.class))).thenReturn(item);
+
+        Item result = itemService.create(userId, item);
+
+        assertNotNull(result);
+        assertEquals(itemRequest, result.getItemRequest());
+        verify(itemRequestRepository).findById(requestId);
+    }
+
+    @Test
+    void create_WhenRequestNotFound_ShouldThrow() {
+        item.setItemRequest(itemRequest);
+        when(userService.getById(userId)).thenReturn(owner);
+        when(itemRequestRepository.findById(requestId)).thenReturn(Optional.empty());
+
+        assertThrows(ItemRequestNotFoundException.class,
+                () -> itemService.create(userId, item));
+    }
+
+    @Test
+    void update_ShouldUpdateItemFields() {
         Item updatedItem = Item.builder()
                 .name("New Name")
                 .description("New Desc")
@@ -95,6 +129,25 @@ public class ItemServiceImplTest {
 
         assertThrows(AccessDeniedException.class, () ->
                 itemService.update(otherUser.getId(), itemId, new Item()));
+    }
+
+    @Test
+    void update_WhenItemNotFound_ShouldThrow() {
+        when(userService.getById(userId)).thenReturn(owner);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+
+        assertThrows(ItemNotFoundException.class,
+                () -> itemService.update(userId, itemId, new Item()));
+    }
+
+    @Test
+    void update_WhenNotOwner_ShouldThrow() {
+        Long otherUserId = 2L;
+        when(userService.getById(otherUserId)).thenReturn(User.builder().id(otherUserId).build());
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        assertThrows(AccessDeniedException.class,
+                () -> itemService.update(otherUserId, itemId, new Item()));
     }
 
     @Test
@@ -158,9 +211,32 @@ public class ItemServiceImplTest {
     }
 
     @Test
+    void getById_ShouldReturnItemWithoutBookingsForNonOwner() {
+        Long otherUserId = 2L;
+        ItemResponse response = new ItemResponse();
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemMapper.toItemResponse(item)).thenReturn(response);
+
+        ItemResponse result = itemService.getById(otherUserId, itemId);
+
+        assertEquals(response, result);
+        assertNull(result.getNextBooking());
+        assertNull(result.getLastBooking());
+    }
+
+    @Test
     void search_ShouldReturnEmptyForBlankText() {
         List<Item> result = itemService.search("   ");
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void search_ShouldReturnItems() {
+        when(itemRepository.search("test")).thenReturn(List.of(item));
+        List<Item> result = itemService.search("test");
+        assertEquals(1, result.size());
+        assertEquals(item, result.get(0));
     }
 
     @Test

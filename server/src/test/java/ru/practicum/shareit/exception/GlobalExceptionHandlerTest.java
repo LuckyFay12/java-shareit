@@ -22,62 +22,62 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void handleUserNotFound_ShouldReturnNotFoundResponse() {
-        UserNotFoundException ex = new UserNotFoundException("User not found");
+        UserNotFoundException ex = new UserNotFoundException("Пользователь не найден");
 
         ApiError response = exceptionHandler.handleUserNotFound(ex);
 
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getErrorCode());
-        assertEquals("User not found", response.getError());
+        assertEquals("Пользователь не найден", response.getError());
     }
 
     @Test
     void handleItemNotFound_ShouldReturnNotFoundResponse() {
-        ItemNotFoundException ex = new ItemNotFoundException("Item not found");
+        ItemNotFoundException ex = new ItemNotFoundException("Вещь не найдена");
 
         ApiError response = exceptionHandler.handleItemNotFound(ex);
 
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getErrorCode());
-        assertEquals("Item not found", response.getError());
+        assertEquals("Вещь не найдена", response.getError());
     }
 
     @Test
     void handleBookingNotFound_ShouldReturnNotFoundResponse() {
-        BookingNotFoundException ex = new BookingNotFoundException("Booking not found");
+        BookingNotFoundException ex = new BookingNotFoundException("Бронь не найдена");
 
         ApiError response = exceptionHandler.handleBookingNotFound(ex);
 
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getErrorCode());
-        assertEquals("Booking not found", response.getError());
+        assertEquals("Бронь не найдена", response.getError());
     }
 
     @Test
     void handleItemRequestNotFound_ShouldReturnNotFoundResponse() {
-        ItemRequestNotFoundException ex = new ItemRequestNotFoundException("Request not found");
+        ItemRequestNotFoundException ex = new ItemRequestNotFoundException("Запрос не найден");
 
         ApiError response = exceptionHandler.handleItemRequestNotFound(ex);
 
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getErrorCode());
-        assertEquals("Request not found", response.getError());
+        assertEquals("Запрос не найден", response.getError());
     }
 
     @Test
     void handleAlreadyExists_ShouldReturnConflictResponse() {
-        AlreadyExistsException ex = new AlreadyExistsException("Already exists");
+        AlreadyExistsException ex = new AlreadyExistsException("Уже существует");
 
         ApiError response = exceptionHandler.handleAlreadyExists(ex);
 
         assertEquals(HttpStatus.CONFLICT.value(), response.getErrorCode());
-        assertEquals("Already exists", response.getError());
+        assertEquals("Уже существует", response.getError());
     }
 
     @Test
     void handleAccessDenied_ShouldReturnForbiddenResponse() {
-        AccessDeniedException ex = new AccessDeniedException("Access denied");
+        AccessDeniedException ex = new AccessDeniedException("Доступ запрещен");
 
         ApiError response = exceptionHandler.handleAccessDenied(ex);
 
         assertEquals(HttpStatus.FORBIDDEN.value(), response.getErrorCode());
-        assertEquals("Access denied", response.getError());
+        assertEquals("Доступ запрещен", response.getError());
     }
 
     @Test

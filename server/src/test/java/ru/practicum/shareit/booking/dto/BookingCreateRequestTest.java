@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BookingCreateRequestTest {
 
-    private final LocalDateTime testStart = LocalDateTime.of(2023, 1, 1, 10, 0);
-    private final LocalDateTime testEnd = LocalDateTime.of(2023, 1, 2, 10, 0);
+    private final LocalDateTime testStart = LocalDateTime.of(2025, 1, 1, 10, 0);
+    private final LocalDateTime testEnd = LocalDateTime.of(2025, 1, 2, 10, 0);
 
     @Test
     void noArgsConstructor_ShouldCreateEmptyObject() {
