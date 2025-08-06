@@ -14,14 +14,11 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
+import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ItemMapperTest {
@@ -134,6 +131,32 @@ class ItemMapperTest {
 
         verify(commentRepository).findAllByItem(item);
         verify(commentMapper).toCommentResponse(comment);
+    }
+
+    @Test
+    void loadComments_whenItemIdIsNull_shouldReturnEmptyList() {
+        Item item = new Item();
+        item.setId(null);
+
+        List<CommentResponse> result = itemMapper.loadComments(item);
+
+        assertTrue(result.isEmpty());
+        verifyNoInteractions(commentRepository, commentMapper);
+    }
+
+    @Test
+    void loadComments_whenNoCommentsExist_shouldReturnEmptyList() {
+        Item item = new Item();
+        item.setId(1L);
+
+        when(commentRepository.findAllByItem(item))
+                .thenReturn(Collections.emptyList());
+
+        List<CommentResponse> result = itemMapper.loadComments(item);
+
+        assertTrue(result.isEmpty());
+        verify(commentRepository).findAllByItem(item);
+        verifyNoInteractions(commentMapper);
     }
 }
 

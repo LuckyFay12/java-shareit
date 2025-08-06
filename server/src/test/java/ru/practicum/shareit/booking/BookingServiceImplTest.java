@@ -116,7 +116,6 @@ class BookingServiceImplTest {
                 "Должно выбрасываться исключение при попытке бронирования несуществующей вещи");
     }
 
-
     @Test
     void approveBookingTest() {
         when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
@@ -159,6 +158,26 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void approve_whenStatusNotWaiting_shouldThrowValidationException() {
+        Long userId = 1L;
+        Long bookingId = 1L;
+
+        User owner = new User();
+        owner.setId(userId);
+
+        Item item = new Item();
+        item.setOwner(owner);
+
+        Booking booking = new Booking();
+        booking.setStatus(Status.APPROVED);
+        booking.setItem(item);
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        assertThrows(ValidationException.class, () -> bookingService.approve(bookingId, userId, true));
+    }
+
+    @Test
     void getByIdBookingTest() {
         when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
 
@@ -183,6 +202,29 @@ class BookingServiceImplTest {
 
         assertThrows(AccessDeniedException.class,
                 () -> bookingService.getById(booking.getId(), 999L));
+    }
+
+    @Test
+    void getById_whenUserNotBookerOrOwner_shouldThrowAccessDeniedException() {
+        Long userId = 1L;
+        Long bookingId = 1L;
+
+        User booker = new User();
+        booker.setId(2L);
+
+        User owner = new User();
+        owner.setId(3L);
+
+        Item item = new Item();
+        item.setOwner(owner);
+
+        Booking booking = new Booking();
+        booking.setBooker(booker);
+        booking.setItem(item);
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        assertThrows(AccessDeniedException.class, () -> bookingService.getById(bookingId, userId));
     }
 
     @Test
@@ -296,7 +338,6 @@ class BookingServiceImplTest {
         assertEquals(1, result.size());
         assertTrue(result.get(0).getEnd().isBefore(LocalDateTime.now()));
     }
-
 
     @Test
     void getAllBookingsForOwner_WhenNoItems_ShouldThrowValidationException() {
