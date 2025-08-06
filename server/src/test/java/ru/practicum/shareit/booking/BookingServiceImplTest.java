@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exception.AccessDeniedException;
+import ru.practicum.shareit.exception.BookingNotFoundException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
@@ -143,12 +144,37 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void approve_ShouldSetStatusRejected_WhenApprovedFalse() {
+        when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
+        when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> {
+            Booking saved = invocation.getArgument(0);
+            assertEquals(Status.REJECTED, saved.getStatus());  // Проверяем, что статус REJECTED
+            return saved;
+        });
+
+        Booking result = bookingService.approve(booking.getId(), owner.getId(), false);
+
+        assertEquals(Status.REJECTED, result.getStatus());
+        verify(bookingRepository).save(booking);
+    }
+
+    @Test
     void getByIdBookingTest() {
         when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
 
         Booking result = bookingService.getById(booking.getId(), booker.getId());
 
         assertEquals(booking, result);
+    }
+
+    @Test
+    void getById_ShouldThrowItemNotFoundException_WhenBookingNotFound() {
+        Long nonExistingBookingId = 999L;
+        when(bookingRepository.findById(nonExistingBookingId)).thenReturn(Optional.empty());
+
+        assertThrows(BookingNotFoundException.class,
+                () -> bookingService.getById(nonExistingBookingId, booker.getId()),
+                "Должно выбрасываться исключение, если бронирование не найдено");
     }
 
     @Test

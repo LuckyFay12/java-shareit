@@ -13,6 +13,7 @@ import ru.practicum.shareit.booking.dto.BookingShortInfoDto;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.ItemRequestNotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -23,6 +24,7 @@ import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -226,6 +228,17 @@ public class ItemServiceImplTest {
     }
 
     @Test
+    void getUserItems_ShouldReturnUserItems() {
+        List<Item> expectedItems = List.of(item);
+        when(userService.getById(userId)).thenReturn(owner);
+        when(itemRepository.findAllByOwnerOrderById(owner)).thenReturn(expectedItems);
+
+        List<Item> result = itemService.getUserItems(userId);
+
+        assertEquals(expectedItems, result);
+    }
+
+    @Test
     void search_ShouldReturnEmptyForBlankText() {
         List<Item> result = itemService.search("   ");
         assertTrue(result.isEmpty());
@@ -270,5 +283,20 @@ public class ItemServiceImplTest {
         assertNotNull(result);
         assertNotNull(result.getCreated());
         verify(commentRepository).save(comment);
+    }
+
+    @Test
+    void addComment_ShouldThrowWhenNoBookings() {
+        Comment comment = Comment.builder()
+                .item(item)
+                .author(User.builder().id(2L).build())
+                .build();
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(userService.getById(2L)).thenReturn(comment.getAuthor());
+        when(bookingRepository.findAllByItemAndBooker(item, comment.getAuthor()))
+                .thenReturn(Collections.emptyList());
+
+        assertThrows(ValidationException.class, () -> itemService.addComment(comment));
     }
 }
