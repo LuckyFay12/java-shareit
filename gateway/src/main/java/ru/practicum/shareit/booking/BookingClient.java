@@ -11,6 +11,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.shareit.booking.dto.BookingCreateRequest;
 import ru.practicum.shareit.client.BaseClient;
 
+import java.util.Map;
+
 @Service
 public class BookingClient extends BaseClient {
     private static final String API_PREFIX = "/bookings";
@@ -30,12 +32,10 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> updateStatusBooking(Long userId, long bookingId, boolean approved) {
-        String path = UriComponentsBuilder.fromPath("/{bookingId}")
-                .queryParam("approved", approved)
-                .buildAndExpand(bookingId)
-                .toUriString();
-
-        return patch(path, userId);
+        Map<String, Object> parameters = Map.of(
+                "approved", approved
+        );
+        return patch("/" + bookingId + "?approved={approved}", userId, parameters, null);
     }
 
     public ResponseEntity<Object> getBooking(Long userId, Long bookingId) {
@@ -57,5 +57,4 @@ public class BookingClient extends BaseClient {
 
         return get(path, userId);
     }
-
 }
