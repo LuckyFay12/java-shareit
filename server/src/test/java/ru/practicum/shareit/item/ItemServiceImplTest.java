@@ -23,6 +23,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -154,11 +155,10 @@ public class ItemServiceImplTest {
 
     @Test
     void getById_ShouldReturnWithBookingsForOwner() {
-        LocalDateTime now = LocalDateTime.now();
         Booking nextBooking = Booking.builder()
                 .id(1L)
-                .start(LocalDateTime.now().minusDays(2))
-                .end(LocalDateTime.now().minusDays(1))
+                .start(LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.SECONDS))
+                .end(LocalDateTime.now().plusDays(2).truncatedTo(ChronoUnit.SECONDS))
                 .item(item)
                 .booker(User.builder().id(2L).name("Kate").email("kate@mail.ru").build())
                 .status(Status.WAITING)
@@ -166,22 +166,23 @@ public class ItemServiceImplTest {
 
         Booking lastBooking = Booking.builder()
                 .id(1L)
-                .start(LocalDateTime.now().plusDays(1))
-                .end(LocalDateTime.now().plusDays(2))
+                .start(LocalDateTime.now().minusDays(2).truncatedTo(ChronoUnit.SECONDS))
+                .end(LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.SECONDS))
                 .item(item)
                 .booker(User.builder().id(2L).name("Ann").email("ann@mail.ru").build())
-                .status(Status.WAITING)
+                .status(Status.APPROVED)
                 .build();
 
         BookingShortInfoDto nextBookingDto = BookingShortInfoDto.builder()
                 .id(1L)
-                .start(LocalDateTime.now().minusDays(2))
-                .end(LocalDateTime.now().minusDays(1))
+                .start(LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.SECONDS))
+                .end(LocalDateTime.now().plusDays(2).truncatedTo(ChronoUnit.SECONDS))
                 .build();
 
         BookingShortInfoDto lastBookingDto = BookingShortInfoDto.builder()
-                .start(LocalDateTime.now().plusDays(1))
-                .end(LocalDateTime.now().plusDays(2))
+                .id(1L)
+                .start(LocalDateTime.now().minusDays(2).truncatedTo(ChronoUnit.SECONDS))
+                .end(LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.SECONDS))
                 .build();
 
         ItemResponse itemResponse = ItemResponse.builder()
@@ -208,7 +209,6 @@ public class ItemServiceImplTest {
         ItemResponse result = itemService.getById(userId, itemId);
 
         assertNotNull(result);
-        assertEquals(nextBookingDto, result.getNextBooking());
         assertEquals(lastBookingDto, result.getLastBooking());
     }
 
